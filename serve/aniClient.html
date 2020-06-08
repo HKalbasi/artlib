@@ -1,0 +1,49 @@
+<html>
+  <head>
+
+    <style>
+      #mainimg {
+        width: 90vh;
+        height: 90vh;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="/0.svg" id="mainimg">
+    <input type="text" id="txt"><button id = "play">pause</button>
+    <script>
+      const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+      let cnt = 0;
+      let isPlay = true;
+      const img = document.getElementById('mainimg');
+      const txt = document.getElementById('txt');  
+      const main = async () => {
+        let time = 0;
+        const startTime = (new Date).valueOf();
+        while (true) {
+          if (!isPlay) return;
+          time = (new Date).valueOf();
+          await delay(20);
+          await new Promise((res) => {
+            img.onload = () => res();
+            img.src = `/${((new Date)-startTime)/1000}.svg`;
+          });
+          txt.value = (new Date)-time;
+        }
+      };
+      main();
+      const pbutton = document.getElementById('play');
+      pbutton.onclick = () => {
+        if (isPlay) {
+          isPlay = false;
+          pbutton.innerText = 'play';
+        }
+        else {
+          isPlay = true;
+          pbutton.innerText = 'pause';
+          main();  
+        }
+      };
+    </script>
+  </body>
+</html>

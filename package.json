@@ -1,0 +1,18 @@
+{
+  "name": "artlib",
+  "version": "0.1.0",
+  "description": "a library for art work in js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "art"
+  ],
+  "author": "HKalbasi",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "svg-to-png": "^4.0.0",
+    "svgo": "^1.3.2"
+  }
+}
