@@ -19,7 +19,7 @@
       const txt = document.getElementById('txt');  
       const main = async () => {
         let time = 0;
-        const startTime = (new Date).valueOf();
+        const startTime = (new Date).valueOf() - txt.value*1000;
         while (true) {
           if (!isPlay) return;
           time = (new Date).valueOf();
@@ -28,7 +28,7 @@
             img.onload = () => res();
             img.src = `/${((new Date)-startTime)/1000}.svg`;
           });
-          txt.value = (new Date)-time;
+          txt.value = ((new Date)-startTime)/1000;
         }
       };
       main();

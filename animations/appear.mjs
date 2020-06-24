@@ -3,7 +3,7 @@ import { nothing } from "../base.mjs";
 import { linear } from "./interpolation.mjs";
 import { g } from "../base.mjs";
 
-export const fadeIn = (ani, time, dur) => {
+export const fadeIn = (time, dur) => (ani) => {
   return timelineSwitch([
     nothing,
     time,

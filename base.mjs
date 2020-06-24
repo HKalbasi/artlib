@@ -32,7 +32,7 @@ export const text = ({ text, ...params }) => {
   }]);
 }
 
-export const move = (element, x, y) => {
+export const move = (x, y) => (element) => {
   return g([element], {
     transform: [{
       tag: 'translate',
@@ -41,11 +41,27 @@ export const move = (element, x, y) => {
   });
 };
 
-export const scale = (element, x = 1, y = x) => {
+export const pipe = (element, ...f) => {
+  f.forEach(ff => {
+    element = ff(element);
+  });
+  return element;
+};
+
+export const scale = (x = 1, y = x) => (element) => {
   return g([element], {
     transform: [{
       tag: 'scale',
       params: [x, y],
+    }]
+  });
+};
+
+export const rotate = (degree, x = 0, y = 0) => (element) => {
+  return g([element], {
+    transform: [{
+      tag: 'rotate',
+      params: [degree, x, y],
     }]
   });
 };
@@ -57,13 +73,13 @@ export const mask = (e, mask) => {
   ]);
 };
 
-export const grid = () => {
+export const grid = (n) => {
   return g([
-    ...[...Array(10).keys()].map(i => {
-      return line({ x1: i*10, y1: 0, x2: i*10, y2: 100});
+    ...[...Array(n + 1).keys()].map(i => {
+      return line({ x1: i*10, y1: 0, x2: i*10, y2: n*10});
     }),
-    ...[...Array(10).keys()].map(i => {
-      return line({ y1: i*10, x1: 0, y2: i*10, x2: 100});
+    ...[...Array(n + 1).keys()].map(i => {
+      return line({ y1: i*10, x1: 0, y2: i*10, x2: n*10});
     }),
   ], {
     style:`stroke-width: 1; stroke: #0f0;`
