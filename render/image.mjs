@@ -3,29 +3,48 @@ import fs from "fs";
 import { promisify } from "util";
 
 const writeFile = promisify(fs.writeFile);
+const readFile = promisify(fs.readFile);
 
-export const compile = ({ tag, params, children }) => {
+const fileCache = new Map();
+
+const getFromCache = async ({ address, mime }) => {
+  if (fileCache.has(address)) return fileCache.get(address);
+  const t = (await readFile(address)).toString('base64');
+  const data = `data:${mime};base64,${t}`;
+  fileCache.set(address, data);
+  return data;
+};
+
+export const compile = async (obj) => {
+  const { tag, params, children } = obj;
   if (tag === 'textNode') return children;
-  const at = Object.keys(params).map(x => {
+  if (tag === undefined) throw new Error('bad object: '+JSON.stringify(obj));
+  const at = (await Promise.all(Object.keys(params).map(async (x) => {
+    if (x === 'href') {
+      return `xlink:href="${await getFromCache(params[x])}"`;
+    }
     if (x === 'transform') {
+      if (typeof params[x] === 'string') {
+        return `${x}="${params[x]}"`;
+      }
       const value = params[x]
         .map(({ tag, params }) => `${tag}(${params.join(',')})`)
         .join(' ');
       return `${x}="${value}"`;
     }
     return `${x}="${params[x]}"`
-  }).join(' ');
+  }))).join(' ');
   if (children.length === 0) {
     return `<${tag} ${at}/>`;
   }
-  const ch = children.map(x => compile(x)).join('');
+  const ch = (await Promise.all(children.map(async (x) => compile(x)))).join('');
   return `<${tag} ${at}>${ch}</${tag}>`;
 };
 
-export const svg = (element, { viewBox = '0 0 100 100' }) => 
+export const svg = async (element, { viewBox = '0 0 100 100' }) => 
 `<?xml version="1.0" standalone="no"?>
-<svg viewBox="${viewBox}" version="1.1" xmlns="http://www.w3.org/2000/svg">${
-  compile(element)
+<svg viewBox="${viewBox}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">${
+  await compile(element)
 }</svg>`;
 
 const svgo = new SVGO({
@@ -99,6 +118,6 @@ const svgo = new SVGO({
 });
 
 export const storeSVG = async (path, element, params = {}) => {
-  const r = await svgo.optimize(svg(element, params));
+  const r = await svgo.optimize(await svg(element, params));
   await writeFile(path, r.data);
 };

@@ -1,3 +1,8 @@
+
+/**
+ * 
+ * @type {(tag: string)=>(params:object, children:Array<Element2D>)=>Element2D}
+ */
 export const element = (tag) => (params, children = []) => {
   Object.keys(params).forEach(x => {
     if (params[x] === undefined) throw new Error('bad param');
@@ -16,21 +21,49 @@ export const elementG = (tag) => (children, params = {}) => {
   };
 };
 
-
 export const circle = element('circle');
 export const rect = element('rect');
 export const polygon = element('polygon');
+
+/**
+ * 
+ * @type {(params: { x1: Animated<number>, x2: Animated<number>, y1: Animated<number>, y2: Animated<number>,}) => Element2D}
+ */
 export const line = element('line');
+
 export const path = element('path');
 export const g = elementG('g');
 export const nothing = g([]);
+
+/**
+ * 
+ * @param {String} address
+ * @param {String} mime 
+ * @param {Animated<Number>} width 
+ * @param {Animated<Number>} height 
+ */
+export const image = (address, mime = 'image/svg+xml', width = 100, height = 100) => ({
+  tag: 'image',
+  params: {
+    href: { address, mime },
+    height, width,
+  },
+  children: [],
+});
 
 export const text = ({ text, ...params }) => {
   return element('text')({ ...params }, [{
     tag: 'textNode',
     children: text,
   }]);
-}
+};
+
+export const textC = (txt, x = 0, y = 0, fontSize = 10, color = '#000', params = {}) => {
+  return text({ 
+    text: txt, x, y,
+    style: `font-size: ${fontSize}px; text-anchor: middle; fill:${color};`,
+  });
+};
 
 export const move = (x, y) => (element) => {
   return g([element], {

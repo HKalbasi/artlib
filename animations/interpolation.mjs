@@ -4,9 +4,16 @@ export const functionWrapper = (f) => ({
 });
 
 export const linear = ([p1, v1], [p2, v2], type = 'simple') => {
-  if (type === 'simple') {
+  if (type === 'simple' || type === 'interval') {
     const a = (v1-v2)/(p1-p2);
     const b = v1-a*p1;
+    if (type === 'interval') {
+      return functionWrapper((x) => {
+        if (x > p2) return v2;
+        if (x < p1) return v1;
+        return a*x+b;
+      });
+    }
     return functionWrapper((x) => a*x+b);
   }
   if (type === 'zigzag') {

@@ -30,7 +30,7 @@ export const captureAt = (x, time) => {
   return objectMap(x, k => captureAt(k, time));
 };
 
-export const renderAt = (ani, time, param = {}) => {
+export const renderAt = async (ani, time, param = {}) => {
   return svg(captureAt(ani, time), param);
 };
 
@@ -46,7 +46,7 @@ export const generateMp4 = async (ani, address, dur, fps, param = {}) => {
   await rmdir(address, { recursive: true });
   await mkdir(sp, {recursive: true });
   await Promise.all(Array.from(Array(dur * fps)).map(async (_, i) => {
-    await writeFile(path.join(sp, i+'.svg'), renderAt(ani, i/fps, param));
+    await writeFile(path.join(sp, i+'.svg'), await renderAt(ani, i/fps, param));
   }));
   console.log(`finished svg frames ${passed()}`);
   await stp.convert(sp, pp);
